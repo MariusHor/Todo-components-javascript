@@ -1,45 +1,78 @@
 import { Build } from '../lib/core';
+import { withStoreHOF } from '../store';
 
-const ListItem = ({ initialState, props, item: { title, completed } }) =>
-  Build({
-    initialState,
-    props: {
-      ...props,
-      elementType: 'li',
-      classes: `${completed ? 'completed' : ''}`,
-      attributes: {
-        'data-root': props.name,
-      },
-      childrenElements: [
-        {
-          elementType: 'div',
-          classes: 'view',
+const ListItem =
+  (store) =>
+  ({ initialState, props, item: { id, title, completed } }) =>
+    Build({
+      initialState,
+      props: {
+        ...props,
+        name: `note-${id}`,
+        elementType: 'li',
+        classes: `${completed ? 'completed' : ''}`,
+        attributes: {
+          'data-root': `note-${id}`,
+        },
+        childrenElements: [
+          {
+            elementType: 'div',
+            classes: 'view',
 
-          childrenElements: [
-            {
-              elementType: 'input',
-              classes: 'toggle',
-              attributes: {
-                id: 'note-title',
-                type: 'checkbox',
+            childrenElements: [
+              {
+                elementType: 'input',
+                classes: 'toggle',
+                attributes: {
+                  ['data-el']: `toggle-note-${id}`,
+                  id: 'note-title',
+                  type: 'checkbox',
+                },
               },
+              {
+                elementType: 'label',
+                textContent: title,
+              },
+            ],
+          },
+          {
+            elementType: 'input',
+            classes: 'edit',
+            attributes: {
+              value: 'Create a TodoMVC template',
             },
-            {
-              elementType: 'label',
-              textContent: title,
-            },
-          ],
+          },
+        ],
+      },
+      bindings: [
+        {
+          type: 'classes',
+          selector: `[data-root="note-${id}"]`,
+          path: `notes[${id}].completed`,
+          action: ({ elem, stateValue }) =>
+            stateValue ? elem.classList.add('completed') : elem.classList.remove('completed'),
         },
         {
-          elementType: 'input',
-          classes: 'edit',
-          attributes: {
-            value: 'Create a TodoMVC template',
+          type: 'input',
+          selector: `[data-el="toggle-note-${id}"]`,
+          path: `notes[${id}].completed`,
+          action: ({ elem, stateValue }) => {
+            stateValue ? (elem.checked = true) : (elem.checked = false);
           },
         },
       ],
-    },
-    components: () => [],
-  });
+      listeners: () => [
+        {
+          target: `[data-el="toggle-note-${id}"]`,
+          type: 'click',
+          callback: () => store.dispatch([() => todoActionCheck({ id })]),
+        },
+      ],
+    });
 
-export default ListItem;
+export default withStoreHOF(ListItem);
+
+const todoActionCheck = (payload) => ({
+  type: 'todos/check',
+  payload,
+});

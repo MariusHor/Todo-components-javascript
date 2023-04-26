@@ -12,6 +12,7 @@ const App = ({ initialState, props }) =>
           targetSelector: root,
           position: 'prepend',
           name: 'header',
+          forceUpdate: true,
         },
       }),
       $Component({

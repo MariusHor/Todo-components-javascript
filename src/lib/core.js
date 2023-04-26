@@ -8,9 +8,7 @@ export const Build = ({ props, bindings = [], components, callbacks, listeners }
   renderUI(props);
 
   const eventCallbacks = callbacks ? callbacks() : [];
-
   const eventListeners = listeners ? listeners({ root, callbacks: eventCallbacks }) : [];
-
   const childComponents = components ? components({ root, callbacks: eventCallbacks }) : [];
 
   addListeners(eventListeners);
@@ -184,7 +182,6 @@ const filterList = ({ list, state, filter }) => {
   const { check, cases } = filter(state);
 
   const activeCase = cases.find((entry) => entry.value === check);
-  console.log(check, activeCase);
   return list.filter((entry) => activeCase.callback(entry));
 };
 
@@ -209,7 +206,6 @@ const removeDeletedChildren = ({ childComponents, componentsData }) => {
 const updateCurrentChildComponents = ({ childComponents, componentsData, state }) => {
   return componentsData.reduce((acc, item) => {
     const existingChild = childComponents.find((component) => component.id === item.id);
-
     if (existingChild) {
       existingChild.updateFn({ nextState: state });
       return [...acc, existingChild];
@@ -222,7 +218,6 @@ const updateCurrentChildComponents = ({ childComponents, componentsData, state }
 const createNewChildComponents = ({ childComponents, componentsData, component, state, props }) => {
   return componentsData.reduce((acc, item) => {
     const existingChild = childComponents.find((child) => child.id === item.id);
-
     if (!existingChild) {
       const newChild = {
         id: item.id,
@@ -365,17 +360,23 @@ const handleBindingType = ({ type, selector, nextState, path, action }) => {
 
   switch (type) {
     case 'text':
+      if (action) {
+        const stateValue = get(nextState, path);
+        action({ elem, stateValue });
+        return;
+      }
+
       elem.textContent = get(nextState, path);
       break;
     case 'attribute': {
       const stateValue = get(nextState, path);
-      action(elem, stateValue);
+      action({ elem, stateValue });
       break;
     }
     case 'input':
       if (action) {
         const stateValue = get(nextState, path);
-        action(elem, stateValue);
+        action({ elem, stateValue });
         return;
       }
 
@@ -384,7 +385,7 @@ const handleBindingType = ({ type, selector, nextState, path, action }) => {
 
     case 'classes': {
       const stateValue = get(nextState, path);
-      action(elem, stateValue);
+      action({ elem, stateValue });
       break;
     }
     default:

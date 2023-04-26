@@ -7,6 +7,7 @@ const FilterItem = ({ initialState, props, item: { title, href, name } }) =>
       ...props,
       elementType: 'li',
       classes: 'filter',
+      name,
       attributes: {
         'data-root': name,
       },
