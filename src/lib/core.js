@@ -1,7 +1,7 @@
 import { isEqual, get } from 'lodash';
 import { store } from '../store';
 
-export const Interface = ({ props, bindings = [], components, callbacks, listeners }) => {
+export const Build = ({ props, bindings = [], components, callbacks, listeners }) => {
   const { name, forceUpdate } = props;
   const root = `[data-root="${name}"]`;
 
@@ -73,7 +73,7 @@ export const insertHtmlToDOM = ({ targetSelector, render, position = 'beforeend'
   document.querySelector(targetSelector).insertAdjacentHTML(position, render());
 };
 
-const insertElementToDOM = ({ target, position, element }) => {
+const attachChildElement = ({ target, position, element }) => {
   switch (position) {
     case 'afterend':
       target.after(element);
@@ -140,10 +140,11 @@ export const renderUI = ({
   if (childrenElements)
     childrenElements.map((child) => {
       const childEl = renderUI(child);
-      element.appendChild(childEl);
+
+      attachChildElement({ target: element, position: child.position, element: childEl });
     });
 
-  if (target) insertElementToDOM({ target, position, element });
+  if (target) attachChildElement({ target, position, element });
   return element;
 };
 
@@ -183,7 +184,7 @@ const filterList = ({ list, state, filter }) => {
   const { check, cases } = filter(state);
 
   const activeCase = cases.find((entry) => entry.value === check);
-
+  console.log(check, activeCase);
   return list.filter((entry) => activeCase.callback(entry));
 };
 

@@ -4,48 +4,49 @@ export default class Store {
   constructor({ eventsEmitter }) {
     this.eventsEmitter = eventsEmitter;
 
-    this.history = {
-      states: [],
-      pointer: -1,
-    };
-
     this.prevState = null;
 
     this.state = {
-      history: {
-        length: 0,
-      },
       filtersProps: [
-        { name: 'all', title: 'All', id: 0 },
-        { name: 'active', title: 'Active', id: 1 },
-        { name: 'completed', title: 'Completed', id: 2 },
+        {
+          id: 0,
+          name: 'all',
+          title: 'All',
+          href: '#/',
+        },
+        {
+          id: 1,
+          name: 'active',
+          title: 'Active',
+          href: '#/active',
+        },
+        {
+          id: 2,
+          name: 'completed',
+          title: 'Completed',
+          href: '#/completed',
+        },
       ],
       form: {
         input: {
           value: '',
         },
-        button: {
-          title: 'Submit',
-        },
         isUpdating: false,
         noteToUpdate: null,
       },
       activeNotesFilter: 'all',
-      nextNoteId: 3,
-      notes: {},
+      nextNoteId: 0,
+      notes: {
+        0: {
+          title: 'Hello',
+          completed: true,
+        },
+        1: {
+          title: 'What is up?',
+          completed: false,
+        },
+      },
     };
-  }
-
-  get on() {
-    return this.eventsEmitter.on;
-  }
-
-  get off() {
-    return this.eventsEmitter.off;
-  }
-
-  get emit() {
-    return this.eventsEmitter.emit;
   }
 
   getState = () => this.state;
@@ -71,14 +72,7 @@ export default class Store {
 
   setState = (callback) => {
     this.prevState = this.setPrevState(this.state);
-
     this.state = callback(this.state);
-    this.history = this.saveStateToHistory(this.state);
-    this.state = {
-      ...this.state,
-      history: { length: this.history.states.length },
-    };
-
     this.dispatchUpdate('update');
 
     return this.state;
@@ -86,48 +80,5 @@ export default class Store {
 
   setPrevState = (state) => {
     return cloneDeep(state);
-  };
-
-  saveStateToHistory = (state) => {
-    const { pointer, states } = this.history;
-
-    this.history = {
-      states: [...states, { ...state }],
-      pointer: pointer + 1,
-    };
-
-    return this.history;
-  };
-
-  handleUndo = () => {
-    const { pointer, states } = this.history;
-
-    if (pointer <= 0) return;
-
-    this.prevState = this.setPrevState(this.state);
-
-    this.state = {
-      ...states[pointer - 1],
-    };
-
-    this.history = { ...this.history, pointer: pointer - 1 };
-
-    this.dispatchUpdate('update');
-  };
-
-  handleRedo = () => {
-    const { pointer, states } = this.history;
-
-    if (pointer >= states.length - 1) return;
-
-    this.prevState = this.setPrevState(this.state);
-
-    this.state = {
-      ...states[pointer + 1],
-    };
-
-    this.history = { ...this.history, pointer: pointer + 1 };
-
-    this.dispatchUpdate('update');
   };
 }

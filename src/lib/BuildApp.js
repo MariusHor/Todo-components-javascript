@@ -1,11 +1,11 @@
 export default class BuildApp {
-  constructor({ component, props, model }) {
+  constructor({ component, props, store }) {
     this.app = component;
     this.props = props;
-    this.model = model;
+    this.store = store;
 
-    model.on('build', this.#build);
-    model.on('update', (nextState) => this.updateApp({ nextState }));
+    store.subscribe('build', this.#build);
+    store.subscribe('update', (nextState) => this.updateApp({ nextState }));
   }
 
   #build = (initialState) => {
@@ -13,6 +13,6 @@ export default class BuildApp {
   };
 
   run = () => {
-    this.model.dispatchUpdate('build');
+    this.store.dispatchUpdate('build');
   };
 }
