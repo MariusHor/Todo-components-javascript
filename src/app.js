@@ -1,5 +1,5 @@
 import { Main, Header, Footer } from './components';
-import { $Component, Build } from './lib/core';
+import { $Component, Build } from 'lib';
 
 const App = ({ initialState, props }) =>
   Build({

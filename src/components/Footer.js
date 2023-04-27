@@ -1,6 +1,6 @@
-import { todoClearCompleted } from '../actions';
-import { $Component, Build } from '../lib/core';
-import { withStoreHOF } from '../store';
+import { todoClearCompleted } from 'actions';
+import { $Component, Build } from 'lib';
+import { withStoreHOF } from 'store';
 import Button from './Button';
 import Filters from './Filters';
 

@@ -1,4 +1,4 @@
-import { $$Components, Build } from '../lib/core';
+import { $$Components, Build } from 'lib';
 import ListItem from './ListItem';
 
 const TodoList = ({ initialState, props }) =>

@@ -1,6 +1,6 @@
-import { todoActionToggleAll } from '../actions';
-import { Build } from '../lib/core';
-import { withStoreHOF } from '../store';
+import { todoActionToggleAll } from 'actions';
+import { Build } from 'lib';
+import { withStoreHOF } from 'store';
 import TodoList from './TodoList';
 
 const Main =

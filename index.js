@@ -1,6 +1,6 @@
-import BuildApp from './src/lib/BuildApp';
-import { store } from './src/store';
-import App from './src/App';
+import { BuildApp } from 'lib';
+import { store } from 'store';
+import App from 'src/App';
 
 const app = new BuildApp({
   component: App,

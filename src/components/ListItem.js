@@ -1,6 +1,6 @@
-import { todoActionCheck, todoActionClear, todoActionEditRequest } from '../actions';
-import { Build } from '../lib/core';
-import { withStoreHOF } from '../store';
+import { todoActionCheck, todoActionClear, todoActionEditRequest } from 'actions';
+import { Build } from 'lib';
+import { withStoreHOF } from 'store';
 import Button from './Button';
 
 const ListItem =

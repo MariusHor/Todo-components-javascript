@@ -1,7 +1,7 @@
-import { formActionSetInput, todoActionAdd, todoActionEditSave } from '../actions';
-import { Build } from '../lib/core';
-import { withStoreHOF } from '../store';
-import { getEl } from '../utils/helpers';
+import { formActionSetInput, todoActionAdd, todoActionEditSave } from 'actions';
+import { Build } from 'lib';
+import { withStoreHOF } from 'store';
+import { getEl } from 'utils';
 
 const Header =
   (store) =>

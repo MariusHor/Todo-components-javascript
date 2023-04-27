@@ -1,6 +1,6 @@
 import { isEqual, get } from 'lodash';
-import { store } from '../store';
-import { addListeners, attachChildElement, getEl, insertHtmlToDOM, removeListeners } from '../utils/helpers';
+import { store } from 'store';
+import { addListeners, attachChildElement, getEl, insertHtmlToDOM, removeListeners } from 'utils';
 
 export const Build = ({ props, bindings = [], components, callbacks, listeners }) => {
   const { name, forceUpdate } = props;
@@ -38,46 +38,6 @@ export const Build = ({ props, bindings = [], components, callbacks, listeners }
       update$$({ nextState, components: [...childComponents] });
     }
   };
-};
-
-export const renderUI = ({
-  targetSelector,
-  position = 'append',
-  elementType,
-  classes,
-  textContent,
-  attributes = {},
-  childrenElements = [],
-}) => {
-  let element;
-
-  const target = getEl(targetSelector);
-
-  if (elementType) {
-    element = buildElement({ elementType, classes, attributes, textContent });
-  }
-
-  if (!elementType) element = document.createDocumentFragment();
-
-  if (childrenElements)
-    childrenElements.map((child) => {
-      const childEl = renderUI(child);
-
-      attachChildElement({ target: element, position: child.position, element: childEl });
-    });
-
-  if (target) attachChildElement({ target, position, element });
-  return element;
-};
-
-export const updateUI = ({ nextState, bindings = [], forceUpdate }) => {
-  bindings.forEach((binding) => {
-    handleBinding(binding, nextState, forceUpdate);
-  });
-};
-
-export const cleanUI = ({ target }) => {
-  getEl(target).remove();
 };
 
 export const $Component = ({ item, condition, state, component, props, fallback }) => {
@@ -197,7 +157,47 @@ export const $$Components = ({ props, component, itemsList, filter, state, fallb
   };
 };
 
-export const update$$ = ({ nextState, components, shouldRemove }) => {
+const renderUI = ({
+  targetSelector,
+  position = 'append',
+  elementType,
+  classes,
+  textContent,
+  attributes = {},
+  childrenElements = [],
+}) => {
+  let element;
+
+  const target = getEl(targetSelector);
+
+  if (elementType) {
+    element = buildElement({ elementType, classes, attributes, textContent });
+  }
+
+  if (!elementType) element = document.createDocumentFragment();
+
+  if (childrenElements)
+    childrenElements.map((child) => {
+      const childEl = renderUI(child);
+
+      attachChildElement({ target: element, position: child.position, element: childEl });
+    });
+
+  if (target) attachChildElement({ target, position, element });
+  return element;
+};
+
+const updateUI = ({ nextState, bindings = [], forceUpdate }) => {
+  bindings.forEach((binding) => {
+    handleBinding(binding, nextState, forceUpdate);
+  });
+};
+
+const cleanUI = ({ target }) => {
+  getEl(target).remove();
+};
+
+const update$$ = ({ nextState, components, shouldRemove }) => {
   components.forEach((component) => {
     return component({ nextState, shouldRemove });
   });

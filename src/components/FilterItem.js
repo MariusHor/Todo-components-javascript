@@ -1,4 +1,4 @@
-import { Build } from '../lib/core';
+import { Build } from 'lib';
 
 const FilterItem = ({ initialState, props, item: { title, href, name } }) =>
   Build({

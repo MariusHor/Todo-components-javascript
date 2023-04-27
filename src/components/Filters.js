@@ -1,6 +1,6 @@
-import { filtersActionSwitch } from '../actions';
-import { $$Components, Build } from '../lib/core';
-import { withStoreHOF } from '../store';
+import { filtersActionSwitch } from 'actions';
+import { $$Components, Build } from 'lib';
+import { withStoreHOF } from 'store';
 import FilterItem from './FilterItem';
 
 const Filters =

@@ -1,10 +1,5 @@
 {
-  "extends": [
-    "eslint:recommended",
-    "plugin:import/errors",
-    "plugin:jsx-a11y/recommended",
-    "prettier"
-  ],
+  "extends": ["eslint:recommended", "plugin:import/errors", "plugin:jsx-a11y/recommended", "prettier"],
   "rules": {},
   "plugins": ["import", "jsx-a11y", "prettier"],
   "parserOptions": {
@@ -17,14 +12,14 @@
     "node": true
   },
   "settings": {
-    "react": {
-      "version": "detect"
-    },
     "import/resolver": {
-      "node": {
-        "paths": ["src"],
-        "extensions": [".js", ".jsx"]
-      }
+      "alias": [
+        ["src", "./src"],
+        ["actions", "./src/actions"],
+        ["lib", "./src/lib"],
+        ["store", "./src/store"],
+        ["utils", "./src/utils"]
+      ]
     }
   }
 }
