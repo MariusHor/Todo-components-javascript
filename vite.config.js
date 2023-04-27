@@ -1,9 +1,15 @@
 import { defineConfig } from 'vite';
-import eslint from 'vite-plugin-eslint';
+import eslintPlugin from 'vite-plugin-eslint';
 const path = require('path');
 
 export default defineConfig({
-  plugins: [eslint()],
+  plugins: [
+    eslintPlugin({
+      cache: false,
+      include: ['./src/**/*.js', './src/**/*.jsx'],
+      exclude: [],
+    }),
+  ],
   resolve: {
     alias: {
       src: path.resolve(__dirname, './src'),
