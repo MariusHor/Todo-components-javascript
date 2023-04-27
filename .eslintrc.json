@@ -13,13 +13,15 @@
   },
   "settings": {
     "import/resolver": {
-      "alias": [
-        ["src", "./src"],
-        ["actions", "./src/actions"],
-        ["lib", "./src/lib"],
-        ["store", "./src/store"],
-        ["utils", "./src/utils"]
-      ],
+      "alias": {
+        "map": [
+          ["src", "./src"],
+          ["actions", "./src/actions"],
+          ["lib", "./src/lib"],
+          ["store", "./src/store"],
+          ["utils", "./src/utils"]
+        ]
+      },
       "node": {
         "extensions": [".js", ".jsx", ".ts", ".tsx"],
         "moduleDirectory": ["node_modules", "src/"]
