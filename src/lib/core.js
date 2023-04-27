@@ -1,5 +1,6 @@
 import { isEqual, get } from 'lodash';
 import { store } from '../store';
+import { addListeners, attachChildElement, getEl, insertHtmlToDOM, removeListeners } from '../utils/helpers';
 
 export const Build = ({ props, bindings = [], components, callbacks, listeners }) => {
   const { name, forceUpdate } = props;
@@ -9,7 +10,6 @@ export const Build = ({ props, bindings = [], components, callbacks, listeners }
 
   const eventCallbacks = callbacks ? callbacks() : [];
   const eventListeners = listeners ? listeners({ root, callbacks: eventCallbacks }) : [];
-
   const childComponents = components ? components({ root, callbacks: eventCallbacks }) : [];
 
   addListeners(eventListeners);
@@ -40,83 +40,6 @@ export const Build = ({ props, bindings = [], components, callbacks, listeners }
   };
 };
 
-export const addListener = ({ target, type = 'click', callback }) => {
-  document.querySelector(target).addEventListener(type, callback);
-};
-
-export const removeListener = ({ target, type = 'click', callback }) => {
-  document.querySelector(target).removeEventListener(type, callback);
-};
-
-const addListeners = (listeners) => {
-  listeners.map((listener) =>
-    addListener({
-      target: listener.target,
-      type: listener.type,
-      callback: listener.callback,
-    }),
-  );
-};
-
-const removeListeners = (listeners) => {
-  return listeners.map((listener) =>
-    removeListener({
-      target: listener.target,
-      type: listener.type,
-      callback: listener.callback,
-    }),
-  );
-};
-
-export const insertHtmlToDOM = ({ targetSelector, render, position = 'beforeend' }) => {
-  document.querySelector(targetSelector).insertAdjacentHTML(position, render());
-};
-
-const attachChildElement = ({ target, position, element }) => {
-  switch (position) {
-    case 'afterend':
-      target.after(element);
-      break;
-    case 'beforebegin':
-      target.before(element);
-      break;
-    case 'prepend':
-      target.prepend(element);
-      break;
-    default:
-      target.append(element);
-  }
-};
-
-const handleOptionalAttributes = (attributes, element) => {
-  return attributes.optional.map((attribute) => {
-    const { condition, name, value = '' } = attribute;
-
-    if (condition()) element.setAttribute(name, value);
-  });
-};
-
-const buildElement = ({ elementType, classes, attributes, textContent }) => {
-  const element = document.createElement(elementType);
-
-  if (classes) element.classList.add(...classes.split(' ').filter((cl) => cl !== ''));
-
-  if (attributes)
-    Object.entries(attributes).map(([key, value]) => {
-      if (key === 'optional') {
-        handleOptionalAttributes(attributes, element);
-
-        return;
-      }
-
-      element.setAttribute(key, value);
-    });
-
-  if (textContent) element.textContent = textContent;
-
-  return element;
-};
-
 export const renderUI = ({
   targetSelector,
   position = 'append',
@@ -128,7 +51,7 @@ export const renderUI = ({
 }) => {
   let element;
 
-  const target = document.querySelector(targetSelector);
+  const target = getEl(targetSelector);
 
   if (elementType) {
     element = buildElement({ elementType, classes, attributes, textContent });
@@ -147,93 +70,14 @@ export const renderUI = ({
   return element;
 };
 
-const renderFallback = ({ fallback, state, props }) => {
-  const { targetSelector, position, targetIsSibling, fallbackElSelector } = props();
-
-  const targetElement = targetIsSibling
-    ? document.querySelector(targetSelector).parentNode
-    : document.querySelector(targetSelector);
-
-  const fallbackEl = targetElement.querySelector(fallbackElSelector);
-
-  if (fallbackEl) return;
-
-  const { render } = fallback({ state, props: props() });
-
-  insertHtmlToDOM({
-    targetSelector,
-    position,
-    render,
+export const updateUI = ({ nextState, bindings = [], forceUpdate }) => {
+  bindings.forEach((binding) => {
+    handleBinding(binding, nextState, forceUpdate);
   });
 };
 
-const removeFallback = ({ props }) => {
-  const { targetSelector, targetIsSibling, fallbackElSelector } = props();
-
-  const targetElement = targetIsSibling
-    ? document.querySelector(targetSelector).parentNode
-    : document.querySelector(targetSelector);
-
-  const fallbackEl = targetElement.querySelector(fallbackElSelector);
-
-  if (fallbackEl) targetElement.removeChild(fallbackEl);
-};
-
-const filterList = ({ list, state, filter }) => {
-  const { check, cases } = filter(state);
-
-  const activeCase = cases.find((entry) => entry.value === check);
-  return list.filter((entry) => activeCase.callback(entry));
-};
-
-const removeDeletedChildren = ({ childComponents, componentsData }) => {
-  return childComponents.reduce((acc, component) => {
-    const componentToPreserve = componentsData.find((item) => item.id === component.id);
-
-    if (!componentToPreserve) {
-      const index = childComponents.indexOf(component);
-
-      if (index !== -1) {
-        component.updateFn({ shouldRemove: true });
-      }
-
-      return acc;
-    }
-
-    return [...acc, component];
-  }, []);
-};
-
-const updateCurrentChildComponents = ({ childComponents, componentsData, state }) => {
-  return componentsData.reduce((acc, item) => {
-    const existingChild = childComponents.find((component) => component.id === item.id);
-    if (existingChild) {
-      existingChild.updateFn({ nextState: state });
-      return [...acc, existingChild];
-    }
-
-    return acc;
-  }, []);
-};
-
-const createNewChildComponents = ({ childComponents, componentsData, component, state, props }) => {
-  return componentsData.reduce((acc, item) => {
-    const existingChild = childComponents.find((child) => child.id === item.id);
-    if (!existingChild) {
-      const newChild = {
-        id: item.id,
-        updateFn: component({
-          initialState: state,
-          props: props({ state, item }),
-          item,
-        }),
-      };
-
-      return [...acc, newChild];
-    }
-
-    return [...acc, existingChild];
-  }, []);
+export const cleanUI = ({ target }) => {
+  getEl(target).remove();
 };
 
 export const $Component = ({ item, condition, state, component, props, fallback }) => {
@@ -359,8 +203,132 @@ export const update$$ = ({ nextState, components, shouldRemove }) => {
   });
 };
 
+const removeDeletedChildren = ({ childComponents, componentsData }) => {
+  return childComponents.reduce((acc, component) => {
+    const componentToPreserve = componentsData.find((item) => item.id === component.id);
+
+    if (!componentToPreserve) {
+      const index = childComponents.indexOf(component);
+
+      if (index !== -1) {
+        component.updateFn({ shouldRemove: true });
+      }
+
+      return acc;
+    }
+
+    return [...acc, component];
+  }, []);
+};
+
+const updateCurrentChildComponents = ({ childComponents, componentsData, state }) => {
+  return componentsData.reduce((acc, item) => {
+    const existingChild = childComponents.find((component) => component.id === item.id);
+    if (existingChild) {
+      existingChild.updateFn({ nextState: state });
+      return [...acc, existingChild];
+    }
+
+    return acc;
+  }, []);
+};
+
+const createNewChildComponents = ({ childComponents, componentsData, component, state, props }) => {
+  return componentsData.reduce((acc, item) => {
+    const existingChild = childComponents.find((child) => child.id === item.id);
+    if (!existingChild) {
+      const newChild = {
+        id: item.id,
+        updateFn: component({
+          initialState: state,
+          props: props({ state, item }),
+          item,
+        }),
+      };
+
+      return [...acc, newChild];
+    }
+
+    return [...acc, existingChild];
+  }, []);
+};
+
+const filterList = ({ list, state, filter }) => {
+  const { check, cases } = filter(state);
+
+  const activeCase = cases.find((entry) => entry.value === check);
+  return list.filter((entry) => activeCase.callback(entry));
+};
+
+const renderFallback = ({ fallback, state, props }) => {
+  const { targetSelector, position, targetIsSibling, fallbackElSelector } = props();
+
+  const targetElement = targetIsSibling ? getEl(targetSelector).parentNode : getEl(targetSelector);
+
+  const fallbackEl = targetElement.querySelector(fallbackElSelector);
+
+  if (fallbackEl) return;
+
+  const { render } = fallback({ state, props: props() });
+
+  insertHtmlToDOM({
+    targetSelector,
+    position,
+    render,
+  });
+};
+
+const removeFallback = ({ props }) => {
+  const { targetSelector, targetIsSibling, fallbackElSelector } = props();
+
+  const targetElement = targetIsSibling ? getEl(targetSelector).parentNode : getEl(targetSelector);
+
+  const fallbackEl = targetElement.querySelector(fallbackElSelector);
+
+  if (fallbackEl) targetElement.removeChild(fallbackEl);
+};
+
+const buildElement = ({ elementType, classes, attributes, textContent }) => {
+  const element = document.createElement(elementType);
+
+  if (classes) element.classList.add(...classes.split(' ').filter((cl) => cl !== ''));
+
+  if (attributes)
+    Object.entries(attributes).map(([key, value]) => {
+      if (key === 'optional') {
+        handleOptionalAttributes(attributes, element);
+
+        return;
+      }
+
+      element.setAttribute(key, value);
+    });
+
+  if (textContent) element.textContent = textContent;
+
+  return element;
+};
+
+const handleOptionalAttributes = (attributes, element) => {
+  return attributes.optional.map((attribute) => {
+    const { condition, name, value = '' } = attribute;
+    if (condition()) element.setAttribute(name, value);
+  });
+};
+
+const handleBinding = ({ type, selector, path, action }, nextState, forceUpdate) => {
+  const prevState = store.getPrevState();
+
+  const prevValue = get(prevState, path);
+  const nextValue = get(nextState, path);
+
+  if (isEqual(prevValue, nextValue) && !forceUpdate) return;
+
+  handleBindingType({ type, selector, nextState, path, action });
+};
+
 const handleBindingType = ({ type, selector, nextState, path, action }) => {
-  const elem = document.querySelector(selector);
+  const elem = getEl(selector);
   switch (type) {
     case 'text':
       if (action) {
@@ -392,27 +360,6 @@ const handleBindingType = ({ type, selector, nextState, path, action }) => {
       break;
     }
     default:
-      return 'type unknown';
+      return `${type} provided is not one of: 'text', 'attribute', 'input' or 'classes'`;
   }
-};
-
-const handleBinding = ({ type, selector, path, action }, nextState, forceUpdate) => {
-  const prevState = store.getPrevState();
-
-  const prevValue = get(prevState, path);
-  const nextValue = get(nextState, path);
-
-  if (isEqual(prevValue, nextValue) && !forceUpdate) return;
-
-  handleBindingType({ type, selector, nextState, path, action });
-};
-
-export const updateUI = ({ nextState, bindings = [], forceUpdate }) => {
-  bindings.forEach((binding) => {
-    handleBinding(binding, nextState, forceUpdate);
-  });
-};
-
-export const cleanUI = ({ target }) => {
-  document.querySelector(target).remove();
 };

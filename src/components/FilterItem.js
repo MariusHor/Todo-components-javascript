@@ -14,7 +14,7 @@ const FilterItem = ({ initialState, props, item: { title, href, name } }) =>
       childrenElements: [
         {
           elementType: 'a',
-          classes: `${initialState.activeNotesFilter === name ? 'selected' : ''}`,
+          classes: `${initialState.activeTodosFilter === name ? 'selected' : ''}`,
           textContent: title,
           attributes: {
             href,
@@ -27,7 +27,7 @@ const FilterItem = ({ initialState, props, item: { title, href, name } }) =>
       {
         type: 'classes',
         selector: `[data-el="${name}-link"]`,
-        path: `activeNotesFilter`,
+        path: `activeTodosFilter`,
         action: ({ elem, stateValue }) =>
           stateValue === name ? elem.classList.add('selected') : elem.classList.remove('selected'),
       },

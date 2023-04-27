@@ -20,14 +20,14 @@ const Footer =
           {
             elementType: 'span',
             classes: 'todo-count',
-            textContent: `${Object.keys(initialState.notes).length === 1 ? ' item' : ' items'} left`,
+            textContent: `${Object.keys(initialState.todos).length === 1 ? ' item' : ' items'} left`,
             childrenElements: [
               {
                 elementType: 'strong',
-                textContent: `${Object.values(initialState.notes).filter((note) => !note.completed).length}`,
+                textContent: `${Object.values(initialState.todos).filter((todo) => !todo.completed).length}`,
                 position: 'prepend',
                 attributes: {
-                  'data-el': 'notes-count',
+                  'data-el': 'todos-count',
                 },
               },
             ],
@@ -37,10 +37,10 @@ const Footer =
       bindings: [
         {
           type: 'text',
-          selector: ['[data-el="notes-count"]'],
-          path: 'notes',
+          selector: ['[data-el="todos-count"]'],
+          path: 'todos',
           action: ({ elem, stateValue }) =>
-            (elem.textContent = `${Object.values(stateValue).filter((note) => !note.completed).length}`),
+            (elem.textContent = `${Object.values(stateValue).filter((todo) => !todo.completed).length}`),
         },
       ],
       components: ({ root }) => [
@@ -52,7 +52,7 @@ const Footer =
           },
         }),
         $Component({
-          condition: (state) => Object.values(state.notes).some((note) => note.completed),
+          condition: (state) => Object.values(state.todos).some((todo) => todo.completed),
           component: Button,
           state: initialState,
           props: () => ({

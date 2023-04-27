@@ -32,14 +32,12 @@ export default class Store {
           value: '',
         },
         isUpdating: false,
-        noteToUpdate: null,
+        todoToUpdate: null,
       },
-      activeNotesFilter: 'all',
-      nextNoteId: 0,
-      notes: {},
+      activeTodosFilter: 'all',
+      nextTodoId: 0,
+      todos: {},
     };
-
-    this.areAllNotesChecked = true;
   }
 
   getState = () => this.state;
@@ -87,14 +85,12 @@ export default class Store {
           break;
         case 'todos/editSave':
           this.state = this.saveEditedTodo(this.state, payload);
-          console.log(this.state);
           break;
         case 'todos/toggleAll':
           this.state = this.toggleAllTodos(this.state);
           break;
         case 'todos/clearCompleted':
           this.state = this.clearCompleted(this.state);
-
           break;
         case 'form/setInput':
           this.state = this.setFormInput(this.state, payload);
@@ -102,6 +98,8 @@ export default class Store {
         case 'filters/switch':
           this.state = this.switchActiveFilter(this.state, payload);
           break;
+        default:
+          return 'Unknown action type';
       }
     });
 
@@ -111,17 +109,17 @@ export default class Store {
   switchActiveFilter = (state, payload) => {
     return {
       ...state,
-      activeNotesFilter: payload.filter,
+      activeTodosFilter: payload.filter,
     };
   };
 
   addTodo = (state, payload) => ({
     ...state,
-    nextNoteId: state.nextNoteId + 1,
-    notes: {
-      ...state.notes,
-      [state.nextNoteId]: {
-        id: state.nextNoteId,
+    nextTodoId: state.nextTodoId + 1,
+    todos: {
+      ...state.todos,
+      [state.nextTodoId]: {
+        id: state.nextTodoId,
         ...payload,
       },
     },
@@ -134,39 +132,39 @@ export default class Store {
         value: '',
       },
       isUpdating: false,
-      noteIdToUpdate: null,
+      todoIdToUpdate: null,
     },
-    notes: {
-      ...state.notes,
+    todos: {
+      ...state.todos,
       [payload.id]: {
-        ...state.notes[payload.id],
-        completed: !state.notes[payload.id].completed,
+        ...state.todos[payload.id],
+        completed: !state.todos[payload.id].completed,
       },
     },
   });
 
   clearTodo = (state, payload) => {
     // eslint-disable-next-line no-unused-vars
-    const { [payload.id]: removed, ...rest } = state.notes;
+    const { [payload.id]: removed, ...rest } = state.todos;
     return {
       ...state,
-      notes: {
+      todos: {
         ...rest,
       },
     };
   };
 
   requestEditTodo = (state, payload) => {
-    if (state.notes[payload.id].completed) return this.state;
+    if (state.todos[payload.id].completed) return this.state;
 
     return {
       ...state,
       form: {
         input: {
-          value: state.notes[payload.id].title,
+          value: state.todos[payload.id].title,
         },
         isUpdating: true,
-        noteIdToUpdate: payload.id,
+        todoIdToUpdate: payload.id,
       },
     };
   };
@@ -175,29 +173,29 @@ export default class Store {
     ...state,
     form: {
       isUpdating: false,
-      noteIdToUpdate: null,
+      todoIdToUpdate: null,
       input: {
         value: '',
       },
     },
-    notes: {
-      ...state.notes,
-      [state.form.noteIdToUpdate]: {
-        ...state.notes[state.form.noteIdToUpdate],
+    todos: {
+      ...state.todos,
+      [state.form.todoIdToUpdate]: {
+        ...state.todos[state.form.todoIdToUpdate],
         title: payload.title,
       },
     },
   });
 
   toggleAllTodos = (state) => {
-    const notesLeft = Object.values(state.notes).some((note) => !note.completed);
+    const todosLeft = Object.values(state.todos).some((todo) => !todo.completed);
 
-    const updatedTodos = Object.entries(state.notes)
+    const updatedTodos = Object.entries(state.todos)
       .map(([key, value]) => {
         return {
           [key]: {
             ...value,
-            completed: notesLeft ? true : false,
+            completed: todosLeft ? true : false,
           },
         };
       })
@@ -210,14 +208,14 @@ export default class Store {
 
     return {
       ...state,
-      notes: {
+      todos: {
         ...updatedTodos,
       },
     };
   };
 
   clearCompleted = (state) => {
-    const filteredNotes = Object.entries(state.notes)
+    const filteredTodos = Object.entries(state.todos)
       .filter((entry) => entry[1].completed === false)
       .reduce((acc, [key, value]) => {
         return {
@@ -228,8 +226,8 @@ export default class Store {
 
     return {
       ...state,
-      notes: {
-        ...filteredNotes,
+      todos: {
+        ...filteredTodos,
       },
     };
   };

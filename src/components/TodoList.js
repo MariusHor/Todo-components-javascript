@@ -15,26 +15,26 @@ const TodoList = ({ initialState, props }) =>
     components: ({ root }) => {
       return [
         $$Components({
-          itemsList: (state) => Object.values(state.notes),
+          itemsList: (state) => Object.values(state.todos),
           component: ListItem,
           state: initialState,
           props: () => ({
             targetSelector: root,
           }),
           filter: (state) => ({
-            check: state.activeNotesFilter,
+            check: state.activeTodosFilter,
             cases: [
               {
                 value: 'all',
-                callback: (note) => note,
+                callback: (todo) => todo,
               },
               {
                 value: 'active',
-                callback: (note) => !note.completed,
+                callback: (todo) => !todo.completed,
               },
               {
                 value: 'completed',
-                callback: (note) => note.completed,
+                callback: (todo) => todo.completed,
               },
             ],
           }),

@@ -10,34 +10,40 @@ const ListItem =
       initialState,
       props: {
         ...props,
-        name: `note-${id}`,
+        name: `todo-${id}`,
         elementType: 'li',
         classes: `${completed ? 'completed' : ''}`,
         attributes: {
-          'data-root': `note-${id}`,
+          'data-root': `todo-${id}`,
         },
         childrenElements: [
           {
             elementType: 'div',
             classes: 'view',
             attributes: {
-              'data-el': `note-${id}-view`,
+              'data-el': `todo-${id}-view`,
             },
             childrenElements: [
               {
                 elementType: 'input',
                 classes: 'toggle',
                 attributes: {
-                  id: 'note-title',
+                  id: 'todo-title',
                   type: 'checkbox',
-                  ['data-el']: `toggle-note-${id}`,
+                  ['data-el']: `toggle-todo-${id}`,
+                  optional: [
+                    {
+                      condition: () => completed === true,
+                      name: 'checked',
+                    },
+                  ],
                 },
               },
               {
                 elementType: 'label',
                 textContent: title,
                 attributes: {
-                  ['data-el']: `label-note-${id}`,
+                  ['data-el']: `label-todo-${id}`,
                 },
               },
             ],
@@ -49,7 +55,7 @@ const ListItem =
           initialState,
           props: {
             targetSelector: root,
-            name: `delete-note-${id}`,
+            name: `delete-todo-${id}`,
             classes: 'destroy',
             event: {
               callback: () => store.dispatch([() => todoActionClear({ id })]),
@@ -60,32 +66,30 @@ const ListItem =
       bindings: [
         {
           type: 'classes',
-          selector: `[data-root="note-${id}"]`,
-          path: `notes[${id}].completed`,
+          selector: `[data-root="todo-${id}"]`,
+          path: `todos[${id}].completed`,
           action: ({ elem, stateValue }) =>
             stateValue ? elem.classList.add('completed') : elem.classList.remove('completed'),
         },
         {
-          type: 'input',
-          selector: `[data-el="toggle-note-${id}"]`,
-          path: `notes[${id}].completed`,
-          action: ({ elem, stateValue }) => {
-            stateValue ? (elem.checked = true) : (elem.checked = false);
-          },
+          type: 'attribute',
+          selector: `[data-el="toggle-todo-${id}"]`,
+          path: `todos[${id}].completed`,
+          action: ({ elem, stateValue }) => (stateValue ? (elem.checked = true) : (elem.checked = false)),
         },
         {
           type: 'text',
-          selector: [`[data-el="label-note-${id}"]`],
-          path: `notes[${id}].title`,
+          selector: [`[data-el="label-todo-${id}"]`],
+          path: `todos[${id}].title`,
         },
       ],
       listeners: () => [
         {
-          target: `[data-el="toggle-note-${id}"]`,
+          target: `[data-el="toggle-todo-${id}"]`,
           callback: () => store.dispatch([() => todoActionCheck({ id })]),
         },
         {
-          target: `[data-el="label-note-${id}"]`,
+          target: `[data-el="label-todo-${id}"]`,
           type: 'dblclick',
           callback: () => store.dispatch([() => todoActionEditRequest({ id })]),
         },

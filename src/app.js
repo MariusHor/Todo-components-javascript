@@ -16,7 +16,7 @@ const App = ({ initialState, props }) =>
         },
       }),
       $Component({
-        condition: (state) => Object.keys(state.notes).length > 0,
+        condition: (state) => Object.keys(state.todos).length > 0,
         component: Main,
         state: initialState,
         props: () => ({
@@ -27,7 +27,7 @@ const App = ({ initialState, props }) =>
         }),
       }),
       $Component({
-        condition: (state) => Object.keys(state.notes).length > 0,
+        condition: (state) => Object.keys(state.todos).length > 0,
         component: Footer,
         state: initialState,
         props: () => ({

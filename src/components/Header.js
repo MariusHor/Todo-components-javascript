@@ -1,6 +1,7 @@
 import { formActionSetInput, todoActionAdd, todoActionEditSave } from '../actions';
 import { Build } from '../lib/core';
 import { withStoreHOF } from '../store';
+import { getEl } from '../utils/helpers';
 
 const Header =
   (store) =>
@@ -55,7 +56,7 @@ const Header =
           type: 'submit',
           callback: (event) => {
             event.preventDefault();
-            let input = document.querySelector('[data-state-prop="form-input"]');
+            let input = getEl('[data-state-prop="form-input"]');
             const { form } = store.getState();
 
             const inputValue = input.value.trim();
