@@ -9,6 +9,7 @@ export const Build = ({ props, bindings = [], components, callbacks, listeners }
 
   const eventCallbacks = callbacks ? callbacks() : [];
   const eventListeners = listeners ? listeners({ root, callbacks: eventCallbacks }) : [];
+
   const childComponents = components ? components({ root, callbacks: eventCallbacks }) : [];
 
   addListeners(eventListeners);
@@ -251,15 +252,18 @@ export const $Component = ({ item, condition, state, component, props, fallback 
   }
 
   return ({ nextState, shouldRemove }) => {
-    if (shouldRemove) {
+    if (shouldRemove && updateFn) {
       updateFn({ shouldRemove });
 
       return;
     }
 
+    if (shouldRemove && !updateFn) {
+      return;
+    }
+
     if (!updateFn && (!condition || condition(nextState))) {
       if (fallback) removeFallback({ props });
-
       updateFn = component({
         initialState: nextState,
         props: props({ state: nextState, item }),
@@ -357,7 +361,6 @@ export const update$$ = ({ nextState, components, shouldRemove }) => {
 
 const handleBindingType = ({ type, selector, nextState, path, action }) => {
   const elem = document.querySelector(selector);
-
   switch (type) {
     case 'text':
       if (action) {

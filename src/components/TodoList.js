@@ -15,8 +15,8 @@ const TodoList = ({ initialState, props }) =>
     components: ({ root }) => {
       return [
         $$Components({
-          component: ListItem,
           itemsList: (state) => Object.values(state.notes),
+          component: ListItem,
           state: initialState,
           props: () => ({
             targetSelector: root,

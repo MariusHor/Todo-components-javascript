@@ -1,3 +1,4 @@
+import { todoClearCompleted } from '../actions';
 import { $Component, Build } from '../lib/core';
 import { withStoreHOF } from '../store';
 import Button from './Button';
@@ -67,10 +68,5 @@ const Footer =
         }),
       ],
     });
-
-const todoClearCompleted = (payload) => ({
-  type: 'todos/clearCompleted',
-  payload,
-});
 
 export default withStoreHOF(Footer);

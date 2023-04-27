@@ -1,5 +1,7 @@
+import { todoActionCheck, todoActionClear, todoActionEditRequest } from '../actions';
 import { Build } from '../lib/core';
 import { withStoreHOF } from '../store';
+import Button from './Button';
 
 const ListItem =
   (store) =>
@@ -18,32 +20,43 @@ const ListItem =
           {
             elementType: 'div',
             classes: 'view',
-
+            attributes: {
+              'data-el': `note-${id}-view`,
+            },
             childrenElements: [
               {
                 elementType: 'input',
                 classes: 'toggle',
                 attributes: {
-                  ['data-el']: `toggle-note-${id}`,
                   id: 'note-title',
                   type: 'checkbox',
+                  ['data-el']: `toggle-note-${id}`,
                 },
               },
               {
                 elementType: 'label',
                 textContent: title,
+                attributes: {
+                  ['data-el']: `label-note-${id}`,
+                },
               },
             ],
           },
-          {
-            elementType: 'input',
-            classes: 'edit',
-            attributes: {
-              value: 'Create a TodoMVC template',
-            },
-          },
         ],
       },
+      components: ({ root }) => [
+        Button({
+          initialState,
+          props: {
+            targetSelector: root,
+            name: `delete-note-${id}`,
+            classes: 'destroy',
+            event: {
+              callback: () => store.dispatch([() => todoActionClear({ id })]),
+            },
+          },
+        }),
+      ],
       bindings: [
         {
           type: 'classes',
@@ -60,19 +73,23 @@ const ListItem =
             stateValue ? (elem.checked = true) : (elem.checked = false);
           },
         },
+        {
+          type: 'text',
+          selector: [`[data-el="label-note-${id}"]`],
+          path: `notes[${id}].title`,
+        },
       ],
       listeners: () => [
         {
           target: `[data-el="toggle-note-${id}"]`,
-          type: 'click',
           callback: () => store.dispatch([() => todoActionCheck({ id })]),
+        },
+        {
+          target: `[data-el="label-note-${id}"]`,
+          type: 'dblclick',
+          callback: () => store.dispatch([() => todoActionEditRequest({ id })]),
         },
       ],
     });
 
 export default withStoreHOF(ListItem);
-
-const todoActionCheck = (payload) => ({
-  type: 'todos/check',
-  payload,
-});

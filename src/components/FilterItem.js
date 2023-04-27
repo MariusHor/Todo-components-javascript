@@ -18,11 +18,27 @@ const FilterItem = ({ initialState, props, item: { title, href, name } }) =>
           textContent: title,
           attributes: {
             href,
+            'data-el': `${name}-link`,
           },
         },
       ],
     },
-    components: () => [],
+    bindings: [
+      {
+        type: 'classes',
+        selector: `[data-el="${name}-link"]`,
+        path: `activeNotesFilter`,
+        action: ({ elem, stateValue }) =>
+          stateValue === name ? elem.classList.add('selected') : elem.classList.remove('selected'),
+      },
+    ],
+    listeners: () => [
+      {
+        target: `[data-el="${name}-link"]`,
+        type: props?.event?.type ?? 'click',
+        callback: props?.event?.callback,
+      },
+    ],
   });
 
 export default FilterItem;

@@ -1,27 +1,35 @@
+import { filtersActionSwitch } from '../actions';
 import { $$Components, Build } from '../lib/core';
+import { withStoreHOF } from '../store';
 import FilterItem from './FilterItem';
 
-const Filters = ({ initialState, props }) =>
-  Build({
-    initialState,
-    props: {
-      ...props,
-      elementType: 'ul',
-      classes: 'filters',
-      attributes: {
-        'data-root': props.name,
+const Filters =
+  (store) =>
+  ({ initialState, props }) =>
+    Build({
+      initialState,
+      props: {
+        ...props,
+        elementType: 'ul',
+        classes: 'filters',
+        attributes: {
+          'data-root': props.name,
+        },
       },
-    },
-    components: ({ root }) => [
-      $$Components({
-        component: FilterItem,
-        itemsList: (state) => state.filtersProps,
-        state: initialState,
-        props: () => ({
-          targetSelector: root,
+      components: ({ root }) => [
+        $$Components({
+          component: FilterItem,
+          itemsList: (state) => state.filtersProps,
+          state: initialState,
+          props: ({ item }) => ({
+            targetSelector: root,
+            event: {
+              type: 'click',
+              callback: () => store.dispatch([() => filtersActionSwitch({ filter: item.name })]),
+            },
+          }),
         }),
-      }),
-    ],
-  });
+      ],
+    });
 
-export default Filters;
+export default withStoreHOF(Filters);

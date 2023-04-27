@@ -79,6 +79,16 @@ export default class Store {
         case 'todos/check':
           this.state = this.checkTodo(this.state, payload);
           break;
+        case 'todos/clear':
+          this.state = this.clearTodo(this.state, payload);
+          break;
+        case 'todos/editRequest':
+          this.state = this.requestEditTodo(this.state, payload);
+          break;
+        case 'todos/editSave':
+          this.state = this.saveEditedTodo(this.state, payload);
+          console.log(this.state);
+          break;
         case 'todos/toggleAll':
           this.state = this.toggleAllTodos(this.state);
           break;
@@ -89,38 +99,95 @@ export default class Store {
         case 'form/setInput':
           this.state = this.setFormInput(this.state, payload);
           break;
+        case 'filters/switch':
+          this.state = this.switchActiveFilter(this.state, payload);
+          break;
       }
     });
 
     this.dispatchUpdate('update');
   };
 
-  addTodo = (state, payload) => {
+  switchActiveFilter = (state, payload) => {
     return {
       ...state,
-      nextNoteId: state.nextNoteId + 1,
+      activeNotesFilter: payload.filter,
+    };
+  };
+
+  addTodo = (state, payload) => ({
+    ...state,
+    nextNoteId: state.nextNoteId + 1,
+    notes: {
+      ...state.notes,
+      [state.nextNoteId]: {
+        id: state.nextNoteId,
+        ...payload,
+      },
+    },
+  });
+
+  checkTodo = (state, payload) => ({
+    ...state,
+    form: {
+      input: {
+        value: '',
+      },
+      isUpdating: false,
+      noteIdToUpdate: null,
+    },
+    notes: {
+      ...state.notes,
+      [payload.id]: {
+        ...state.notes[payload.id],
+        completed: !state.notes[payload.id].completed,
+      },
+    },
+  });
+
+  clearTodo = (state, payload) => {
+    // eslint-disable-next-line no-unused-vars
+    const { [payload.id]: removed, ...rest } = state.notes;
+    return {
+      ...state,
       notes: {
-        ...state.notes,
-        [state.nextNoteId]: {
-          id: state.nextNoteId,
-          ...payload,
-        },
+        ...rest,
       },
     };
   };
 
-  checkTodo = (state, payload) => {
+  requestEditTodo = (state, payload) => {
+    if (state.notes[payload.id].completed) return this.state;
+
     return {
       ...state,
-      notes: {
-        ...state.notes,
-        [payload.id]: {
-          ...state.notes[payload.id],
-          completed: !state.notes[payload.id].completed,
+      form: {
+        input: {
+          value: state.notes[payload.id].title,
         },
+        isUpdating: true,
+        noteIdToUpdate: payload.id,
       },
     };
   };
+
+  saveEditedTodo = (state, payload) => ({
+    ...state,
+    form: {
+      isUpdating: false,
+      noteIdToUpdate: null,
+      input: {
+        value: '',
+      },
+    },
+    notes: {
+      ...state.notes,
+      [state.form.noteIdToUpdate]: {
+        ...state.notes[state.form.noteIdToUpdate],
+        title: payload.title,
+      },
+    },
+  });
 
   toggleAllTodos = (state) => {
     const notesLeft = Object.values(state.notes).some((note) => !note.completed);

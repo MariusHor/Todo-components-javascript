@@ -1,3 +1,4 @@
+import { formActionSetInput, todoActionAdd, todoActionEditSave } from '../actions';
 import { Build } from '../lib/core';
 import { withStoreHOF } from '../store';
 
@@ -42,6 +43,10 @@ const Header =
           type: 'input',
           selector: ['[data-state-prop="form-input"]'],
           path: 'form.input.value',
+          action: ({ elem, stateValue }) => {
+            elem.value = stateValue;
+            elem.focus();
+          },
         },
       ],
       listeners: () => [
@@ -51,23 +56,23 @@ const Header =
           callback: (event) => {
             event.preventDefault();
             let input = document.querySelector('[data-state-prop="form-input"]');
-            store.dispatch([
-              () => todoActionAdd({ title: input.value, completed: false }),
-              () => formActionSetInput({ value: '' }),
-            ]);
+            const { form } = store.getState();
+
+            const inputValue = input.value.trim();
+
+            if (form?.isUpdating && inputValue.length) {
+              store.dispatch([() => todoActionEditSave({ title: inputValue })]);
+            }
+
+            if (!form?.isUpdating && inputValue.length) {
+              store.dispatch([
+                () => todoActionAdd({ title: inputValue, completed: false }),
+                () => formActionSetInput({ value: '' }),
+              ]);
+            }
           },
         },
       ],
     });
 
 export default withStoreHOF(Header);
-
-const todoActionAdd = (payload) => ({
-  type: 'todos/add',
-  payload,
-});
-
-const formActionSetInput = (payload) => ({
-  type: 'form/setInput',
-  payload,
-});

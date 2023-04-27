@@ -1,3 +1,4 @@
+import { todoActionToggleAll } from '../actions';
 import { Build } from '../lib/core';
 import { withStoreHOF } from '../store';
 import TodoList from './TodoList';
@@ -52,8 +53,3 @@ const Main =
     });
 
 export default withStoreHOF(Main);
-
-const todoActionToggleAll = (payload) => ({
-  type: 'todos/toggleAll',
-  payload,
-});
