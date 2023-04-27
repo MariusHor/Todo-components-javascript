@@ -3,7 +3,6 @@ import eslint from 'vite-plugin-eslint';
 const path = require('path');
 
 export default defineConfig({
-  plugins: [eslint()],
   resolve: {
     alias: {
       src: path.resolve(__dirname, './src'),
@@ -13,4 +12,5 @@ export default defineConfig({
       utils: path.resolve(__dirname, './src/utils'),
     },
   },
+  plugins: [eslint()],
 });
