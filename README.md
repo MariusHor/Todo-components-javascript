@@ -29,18 +29,18 @@
  - *Conditional rendering* components + giving the ability to use *fallbacks* if conditions are not met.
  - It does not re-render components on state updates but only changes what's necessary through bindings.
  - Components receive a *shouldRemove* signal so that they can clean up after themselves
- - Separating state logic to the *Store* module that receives state update requests, handles them and then sends the new state to *App* component that in turn passes it down the tree.
+ - Separating state logic to the *Store* module that receives state update requests, handles them and then sends the new state to the *App* component that in turn passes it down the tree so that each component can get updated if needed.
 
 ## My process
 
 ### Built with
  
- -HTML
- -CSS
- -Javascript
- -Lodash
- -Vite for bundling
- -Netlify for deployment
+ - HTML - provided by the MVC Todos template but split re-written inside each component
+ - CSS - provided by the MVC Todos template
+ - Javascript
+ - Lodash
+ - Vite for bundling
+ - Netlify for deployment
 
 
 ### Implementation
