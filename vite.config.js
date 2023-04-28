@@ -1,3 +1,4 @@
+/* eslint-disable import/default */
 import { defineConfig } from 'vite';
 import eslintPlugin from 'vite-plugin-eslint';
 const path = require('path');
