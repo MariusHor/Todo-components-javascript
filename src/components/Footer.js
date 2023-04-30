@@ -20,11 +20,15 @@ const Footer =
           {
             elementType: 'span',
             classes: 'todo-count',
-            textContent: `${Object.keys(initialState.todos).length === 1 ? ' item' : ' items'} left`,
+            textContent: `${
+              Object.keys(initialState.todos).length === 1 ? ' item' : ' items'
+            } left`,
             childrenElements: [
               {
                 elementType: 'strong',
-                textContent: `${Object.values(initialState.todos).filter((todo) => !todo.completed).length}`,
+                textContent: `${
+                  Object.values(initialState.todos).filter((todo) => !todo.completed).length
+                }`,
                 position: 'prepend',
                 attributes: {
                   'data-el': 'todos-count',
@@ -40,7 +44,9 @@ const Footer =
           selector: ['[data-el="todos-count"]'],
           path: 'todos',
           action: ({ elem, stateValue }) =>
-            (elem.textContent = `${Object.values(stateValue).filter((todo) => !todo.completed).length}`),
+            (elem.textContent = `${
+              Object.values(stateValue).filter((todo) => !todo.completed).length
+            }`),
         },
       ],
       components: ({ root }) => [

@@ -1,9 +1,15 @@
 /* eslint-disable import/default */
 import { defineConfig } from 'vite';
+import analyze from 'rollup-plugin-analyzer';
 import eslintPlugin from 'vite-plugin-eslint';
 const path = require('path');
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      plugins: [analyze()],
+    },
+  },
   plugins: [
     eslintPlugin({
       cache: false,

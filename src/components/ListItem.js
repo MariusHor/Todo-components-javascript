@@ -75,7 +75,8 @@ const ListItem =
           type: 'attribute',
           selector: `[data-el="toggle-todo-${id}"]`,
           path: `todos[${id}].completed`,
-          action: ({ elem, stateValue }) => (stateValue ? (elem.checked = true) : (elem.checked = false)),
+          action: ({ elem, stateValue }) =>
+            stateValue ? (elem.checked = true) : (elem.checked = false),
         },
         {
           type: 'text',
