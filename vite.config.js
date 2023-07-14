@@ -2,7 +2,7 @@
 import { defineConfig } from 'vite';
 import analyze from 'rollup-plugin-analyzer';
 import eslintPlugin from 'vite-plugin-eslint';
-const path = require('path');
+import path from 'path';
 
 export default defineConfig({
   build: {
@@ -13,16 +13,17 @@ export default defineConfig({
   plugins: [
     eslintPlugin({
       cache: false,
-      include: ['./src/**/*.js', './src/**/*.jsx'],
+      include: ['./src/**/*.ts'],
       exclude: [],
     }),
   ],
   resolve: {
     alias: {
       src: path.resolve(__dirname, './src'),
+      components: path.resolve(__dirname, './src/components'),
       actions: path.resolve(__dirname, './src/actions'),
       lib: path.resolve(__dirname, './src/lib'),
-      store: path.resolve(__dirname, './src/store'),
+      stores: path.resolve(__dirname, './src/stores'),
       utils: path.resolve(__dirname, './src/utils'),
     },
   },

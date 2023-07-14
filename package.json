@@ -1,34 +1,37 @@
 {
-  "name": "todo-components-javascript",
+  "name": "todo-components-typescript",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "format": "prettier --write \"src/**/*.js\"",
-    "lint": "eslint \"src/**/*.js\" --quiet"
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --quiet"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "autoprefixer": "^10.4.14",
-    "eslint": "^8.24.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "lodash": "^4.17.21",
-    "postcss": "^8.4.22",
     "prettier": "2.8.8",
     "rollup-plugin-analyzer": "^4.0.0",
     "sass": "^1.62.0",
-    "tailwindcss": "^3.2.7",
     "todomvc-app-css": "^2.0.0",
     "todomvc-common": "^1.0.5",
+    "typescript": "^5.1.6",
     "vite": "^3.1.4",
     "vite-plugin-eslint": "^1.8.1"
+  },
+  "dependencies": {
+    "eslint-import-resolver-node": "^0.3.7",
+    "eslint-import-resolver-typescript": "^3.5.5"
   }
 }

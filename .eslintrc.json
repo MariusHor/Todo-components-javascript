@@ -1,7 +1,14 @@
 {
-  "extends": ["eslint:recommended", "plugin:import/errors", "prettier"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "prettier"
+  ],
+  "parser": "@typescript-eslint/parser",
   "rules": {},
-  "plugins": ["import", "prettier"],
+  "plugins": ["import", "@typescript-eslint", "prettier"],
+  "root": true,
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module"
@@ -13,14 +20,11 @@
   },
   "settings": {
     "import/resolver": {
-      "alias": {
-        "map": [
-          ["src", "./src"],
-          ["actions", "./src/actions"],
-          ["lib", "./src/lib"],
-          ["store", "./src/store"],
-          ["utils", "./src/utils"]
-        ]
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      },
+      "typescript": {
+        "project": ["tsconfig.json", "package/tsconfig.json"]
       }
     }
   }
