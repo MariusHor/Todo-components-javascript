@@ -1,6 +1,10 @@
-import { Todos } from 'components';
+import { Router } from 'lib';
+import App from './App';
 import { el } from 'utils';
-import { App } from './App';
+import { routes } from 'routes';
 
 const root = el('data-root="app"') as HTMLElement;
-App.init([Todos.create()], root);
+App(root);
+
+const router = new Router({ routes });
+router.start();

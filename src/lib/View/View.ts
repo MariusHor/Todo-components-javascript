@@ -1,98 +1,74 @@
-import { el } from '../_utils/helpers';
+import { SetActions, SetComponents, Template } from 'lib/_types';
 import {
-  AddToDOM,
-  GetRefs,
-  MountView,
-  Props,
-  RefSelectors,
-  Refs,
-  CreateRefs,
-  GeneralState,
-} from '../_types';
+  appendToFragment,
+  el,
+  emptyNode,
+  getRefreshedNode,
+  insertHTMLToFragment,
+} from 'lib/_helpers';
+import {
+  Action,
+  type IController,
+  type IView,
+  type RenderProps,
+  type setActionsProps,
+} from 'lib/_types';
 
-export interface ViewFn {
-  new (props: Props, root: HTMLElement): View;
-}
+export class View<T, V> implements IView<T, V> {
+  constructor(
+    protected root: HTMLElement,
+    protected template: Template<T, V>,
+    protected setComponents: SetComponents<T>,
+    protected setActions: SetActions<T, V>,
+  ) {}
 
-type UIprops = {
-  root: HTMLElement;
-  props: Props;
-  state: GeneralState;
-  selectors: RefSelectors;
-};
+  public controller: IController<T, V> | null = null;
+  private declare updatedNode: HTMLElement;
 
-export abstract class View {
-  constructor(protected props: Props, protected root: HTMLElement) {}
-
-  public declare refs: Refs;
-  protected abstract render(config: unknown): string;
-  protected declare refSelectors: RefSelectors;
-  protected onMount(): void {}
-
-  public mount({ root, state, isUpdating }: MountView) {
-    isUpdating
-      ? this.handleUpdateUI({ root, props: this.props, state, selectors: this.refSelectors })
-      : this.handleRenderUI({ root, props: this.props, state, selectors: this.refSelectors });
+  public setControllerRef(controller: IController<T, V>) {
+    this.controller = controller;
   }
 
-  private handleRenderUI({ root, props, state, selectors }: UIprops) {
-    this.addToDOM({ root, props, state });
-    this.setRefs({ root, selectors });
-    this.onMount();
+  public handleComponents(state: T): void {
+    this.setComponents && this.setComponents({ state, root: this.updatedNode || this.root });
   }
 
-  private handleUpdateUI({ root, props, state, selectors }: UIprops) {
-    this.updateDOM({ root, props, state });
-    this.setRefs({ root, selectors });
-    this.onMount();
+  public handleActions({ state, props }: setActionsProps<T, V>) {
+    const actions = this.getActions({ state, props });
+    this.InitActions(actions);
   }
 
-  private setRefs({ root, selectors }: GetRefs) {
-    Object.entries(selectors).map(([name, selector]) => {
-      name === 'node'
-        ? this.createNodeRef({ name, selector, root })
-        : this.createRef({ name, selector, root });
+  private getActions({ state, props }: setActionsProps<T, V>) {
+    return this.setActions ? this.setActions({ state, props }) : [];
+  }
+
+  private InitActions(actions: Action<T, V>[]) {
+    actions?.forEach((action) => {
+      el(action.elementSelector).addEventListener(action?.event ?? 'click', (event) => {
+        action.callback.call(this, event, this.controller);
+      });
     });
   }
 
-  private createNodeRef({ name, selector, root }: CreateRefs) {
-    this.refs = {};
-    return (this.refs[name] = el({ selector: `data-view=${selector}`, root }) as HTMLElement);
+  public handleRender({ state, props }: RenderProps<T, V>) {
+    const viewMarkup = this.getMarkup({ state, props });
+    viewMarkup ? this.appendToDOM(viewMarkup) : emptyNode(this.root);
   }
 
-  private createRef({ name, selector, root }: CreateRefs) {
-    return (this.refs[name] = el({ selector, root }) as HTMLElement);
-  }
+  private getMarkup = ({ state, props }: RenderProps<T, V>): string | null => {
+    return this.template && this.template({ props, state });
+  };
 
-  private addToDOM({ root, props, state }: AddToDOM) {
-    root.insertAdjacentHTML('beforeend', this.render({ props, state }));
-  }
+  private appendToDOM(viewMarkup: string): void {
+    const { fragment, div } = insertHTMLToFragment(viewMarkup);
+    this.updatedNode = appendToFragment(fragment, div);
+    const currentNode = getRefreshedNode(this.updatedNode);
+    const root = getRefreshedNode(this.root);
 
-  private updateDOM({ root, props, state }: AddToDOM) {
-    if (!this.getViewNode()) {
-      return this.addToDOM({ root, props, state });
+    if (root) {
+      currentNode
+        ? root.replaceChild(this.updatedNode, currentNode)
+        : root.appendChild(this.updatedNode);
     }
-
-    const newMarkup = this.render({ props, state });
-    if (!newMarkup) return this.removeNode(root);
-
-    const fragment = document.createDocumentFragment();
-    const div = document.createElement('div');
-    div.insertAdjacentHTML('beforeend', newMarkup);
-    fragment.appendChild(div);
-
-    root.replaceChild(fragment.children[0].children[0], this.getViewNode());
-  }
-
-  private removeNode(root: HTMLElement) {
-    root.removeChild(this.getViewNode());
-  }
-
-  public removeChildNode(node: HTMLElement) {
-    this.getViewNode().removeChild(node);
-  }
-
-  public getViewNode(): HTMLElement {
-    return this.refs.node;
   }
 }

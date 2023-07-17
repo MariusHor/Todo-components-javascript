@@ -1,5 +1,4 @@
-import { type GlobalState } from 'stores';
-import { type State } from 'lib/_types';
+import { Route } from 'lib/Router/Router';
 
 export type Todo = {
   title: string;
@@ -7,7 +6,8 @@ export type Todo = {
   id: number;
 };
 
-export type GeneralState = {
-  local: State;
-  global: GlobalState;
+export type Filter = 'all' | 'active' | 'completed';
+
+export type ExtendedRoute = Route & {
+  filter?: Filter;
 };

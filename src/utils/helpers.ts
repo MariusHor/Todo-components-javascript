@@ -1,13 +1,22 @@
-export const el = (selector: string, root: HTMLElement | Document = document) => {
-  if (selector.includes('data')) {
-    return root.querySelector(`[${selector}]`);
-  }
+import { type Filter, type Todo } from 'types';
 
-  return root.querySelector(`.${selector}`);
-};
+export const getUncompletedTodos = (todos: Todo[]) =>
+  todos.reduce((total, current) => {
+    return (total = !current.completed ? total + 1 : total);
+  }, 0);
 
-export const emptyNode = (node: HTMLElement) => {
-  while (node.firstChild) {
-    node.removeChild(node.firstChild);
+export const getCompletedTodos = (todos: Todo[]) =>
+  todos.reduce((total, current) => {
+    return (total = current.completed ? total + 1 : total);
+  }, 0);
+
+export const filterTodos = (todos: Todo[], filter: Filter) => {
+  switch (filter) {
+    case 'active':
+      return todos.filter((todo) => !todo.completed);
+    case 'completed':
+      return todos.filter((todo) => todo.completed);
+    default:
+      return todos;
   }
 };
